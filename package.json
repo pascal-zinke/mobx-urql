@@ -1,0 +1,42 @@
+{
+  "version": "0.0.1",
+  "name": "mobx-urql",
+  "description": "MobX bindings for the Urql GraphQL client",
+  "author": "Pascal Zinke",
+  "keywords": [
+    "urql",
+    "graphql",
+    "mobx"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/pascal-zinke/urql-mobx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pascal-zinke/mobx-urql"
+  },
+  "bugs": {
+    "url": "https://github.com/pascal-zinke/mobx-urql/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "mobx": "^6.12.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
+    "typescript": "^5.3.3",
+    "urql": "^4.0.6"
+  },
+  "peerDependencies": {
+    "mobx": "^6.12.0",
+    "urql": "^4.0.6"
+  },
+  "dependencies": {
+    "wonka": "^6.3.4"
+  }
+}

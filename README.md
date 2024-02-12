@@ -1,3 +1,3 @@
-# Urql mobx
+# MobX Urql
 
-Mobx bindings for the urql graphql client
+MobX bindings for the urql graphql client
