@@ -22,21 +22,22 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest"
   },
   "devDependencies": {
+    "@urql/core": "^4.2.3",
     "eslint": "^8.56.0",
     "mobx": "^6.12.0",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
     "typescript": "^5.3.3",
-    "urql": "^4.0.6"
+    "vitest": "^1.2.2",
+    "wonka": "^6.3.4"
   },
   "peerDependencies": {
+    "@urql/core": "^4.2.3",
     "mobx": "^6.12.0",
     "urql": "^4.0.6"
-  },
-  "dependencies": {
-    "wonka": "^6.3.4"
   }
 }
