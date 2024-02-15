@@ -25,7 +25,8 @@
     "build": "tsc",
     "test": "vitest",
     "bump": "changeset",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "snap": "changeset version --snapshot next && changeset publish --tag next"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
