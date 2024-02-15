@@ -17,7 +17,6 @@ type ObservalbeMutationArgs<
 > = {
   mutation: DocumentInput<TData, TVariables>;
   client: Client;
-  context?: Partial<OperationContext>;
 };
 
 type ObservableMutationReturn<
@@ -25,15 +24,22 @@ type ObservableMutationReturn<
   TVariables extends AnyVariables = AnyVariables,
 > = {
   result: () => ObservableMutationState<TData>;
-  execute: (variables: TVariables) => Promise<OperationResult<TData>>;
+  execute: (
+    variables: TVariables,
+    context?: Partial<OperationContext>,
+  ) => Promise<OperationResult<TData>>;
 };
 
 function observableMutation<
   TData = any,
   TVariables extends AnyVariables = AnyVariables,
->(
-  argsGetter: () => ObservalbeMutationArgs<TData, TVariables>,
-): ObservableMutationReturn<TData, TVariables> {
+>({
+  client,
+  mutation,
+}: ObservalbeMutationArgs<TData, TVariables>): ObservableMutationReturn<
+  TData,
+  TVariables
+> {
   let state: State<TData> = initialState;
 
   const atom = createAtom("ObservableMutation");
@@ -43,8 +49,7 @@ function observableMutation<
       atom.reportObserved();
       return state;
     },
-    execute: (variables: TVariables) => {
-      const { client, mutation, context } = argsGetter();
+    execute: (variables: TVariables, context?: Partial<OperationContext>) => {
       state = { ...state, fetching: true };
       atom.reportChanged();
       return pipe(

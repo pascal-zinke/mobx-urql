@@ -21,6 +21,10 @@ const mockVariables = {
   text: "Foo",
 };
 
+const mockContext = {
+  requestPolicy: "network-only",
+} as const;
+
 const next = () => vi.advanceTimersToNextTimer();
 
 beforeEach(() => {
@@ -30,29 +34,29 @@ beforeEach(() => {
 
 describe("observableMutation", () => {
   it("should initialize default state", () => {
-    const mutation = observableMutation(() => ({
+    const mutation = observableMutation({
       client,
       mutation: mockMutation,
-    }));
+    });
     expect(mutation.result().data).toBeUndefined();
     expect(mutation.result().fetching).toBe(false);
   });
 
   it("should update state when starting to fetch", () => {
-    const mutation = observableMutation(() => ({
+    const mutation = observableMutation({
       client,
       mutation: mockMutation,
-    }));
+    });
     mutation.execute(mockVariables);
     expect(mutation.result().fetching).toBe(true);
     expect(mutation.result().data).toBeUndefined();
   });
 
   it("should update state when fetching is done", async () => {
-    const mutation = observableMutation(() => ({
+    const mutation = observableMutation({
       client,
       mutation: mockMutation,
-    }));
+    });
     mutation.execute(mockVariables);
     next();
     expect(mutation.result().fetching).toBe(false);
@@ -60,11 +64,24 @@ describe("observableMutation", () => {
   });
 
   it("should only execute once", () => {
-    const mutation = observableMutation(() => ({
+    const mutation = observableMutation({
       client,
       mutation: mockMutation,
-    }));
+    });
     mutation.execute(mockVariables);
-    expect(mockMutationFn).toBeCalledTimes(1);
+    expect(client.mutation).toBeCalledTimes(1);
+  });
+
+  it("should pass variables and context options", () => {
+    const mutation = observableMutation({
+      client,
+      mutation: mockMutation,
+    });
+    mutation.execute(mockVariables, mockContext);
+    expect(client.mutation).toBeCalledWith(
+      mockMutation,
+      mockVariables,
+      mockContext,
+    );
   });
 });
