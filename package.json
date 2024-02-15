@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.0",
   "name": "mobx-urql",
   "description": "MobX bindings for the Urql GraphQL client",
   "author": "Pascal Zinke",
@@ -23,7 +23,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "changeset": "changeset"
   },
   "devDependencies": {
     "@urql/core": "^4.2.3",
@@ -38,5 +39,8 @@
   "peerDependencies": {
     "@urql/core": "^4.2.3",
     "mobx": "^6.12.0"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.1"
   }
 }
