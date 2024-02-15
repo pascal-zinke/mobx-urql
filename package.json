@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest",
-    "changeset": "changeset",
+    "bump": "changeset",
     "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
