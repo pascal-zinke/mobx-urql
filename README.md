@@ -164,7 +164,7 @@ const mutation = observableMutation({
 mutation.execute({ id: 1 });
 ```
 
-Here we created an `observableMutation` and then called the `execute` function to send our mutation to out API. This function accepts the variables for the mutation and optionally some context options as a second argument.
+Here we created an `observableMutation` and then called the `execute` function to send our mutation to our API. This function accepts the variables for the mutation and optionally some context options as a second argument.
 
 ### Using the mutation result
 
