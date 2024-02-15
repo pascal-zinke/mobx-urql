@@ -1,5 +1,5 @@
+import { Client } from "@urql/core";
 import { autorun, observable, runInAction } from "mobx";
-import { Client } from "urql";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { interval, map, pipe } from "wonka";
 import { observableQuery } from "./query";
@@ -7,7 +7,7 @@ import { observableQuery } from "./query";
 const mockQueryFn = vi.fn(() =>
   pipe(
     interval(100),
-    map((i) => ({ data: i, error: i + 1 })),
+    map((i) => ({ data: i })),
   ),
 );
 
@@ -103,25 +103,18 @@ describe("observableQuery", () => {
     expect(client.query).toBeCalledTimes(2);
   });
 
-  it("should not fetch when pause is true", () => {
-    const query = observableQuery(() => ({
-      client,
-      query: mockQuery,
-      variables: mockVariables,
-      pause: true,
-    }));
-    observe(query.result);
-    expect(client.query).toBeCalledTimes(0);
-  });
-
-  it("should resume when pause updates to false", () => {
+  it("should resume when return args", () => {
     const pause = observable.box(true);
-    const query = observableQuery(() => ({
-      client,
-      query: mockQuery,
-      variables: mockVariables,
-      pause: pause.get(),
-    }));
+    const query = observableQuery(() => {
+      if (pause.get()) {
+        return;
+      }
+      return {
+        client,
+        query: mockQuery,
+        variables: mockVariables,
+      };
+    });
     observe(query.result);
     runInAction(() => pause.set(false));
     expect(client.query).toBeCalledTimes(1);

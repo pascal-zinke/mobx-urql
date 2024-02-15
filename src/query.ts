@@ -1,47 +1,42 @@
 import {
   AnyVariables,
   Client,
-  CombinedError,
   GraphQLRequestParams,
-  Operation,
   OperationContext,
   OperationResult,
   OperationResultSource,
 } from "@urql/core";
 import { autorun, createAtom } from "mobx";
 import { Subscription, pipe, subscribe } from "wonka";
-
-type State<T> = {
-  fetching: boolean;
-  stale: boolean;
-  data?: T;
-  error?: CombinedError;
-  extensions?: Record<string, any>;
-  operation?: Operation<T>;
-};
-
-const initialState: State<unknown> = {
-  fetching: false,
-  stale: false,
-  error: undefined,
-  data: undefined,
-  extensions: undefined,
-  operation: undefined,
-};
+import { State, initialState } from "./state";
 
 type Resolver<T> = (result: State<T>) => void;
 
-type Args<TData = any, TVariables extends AnyVariables = AnyVariables> = {
+type ObservableQueryState<TData> = State<TData>;
+
+type ObservableQueryArgs<
+  TData = any,
+  TVariables extends AnyVariables = AnyVariables,
+> = {
   client: Client;
   context?: Partial<OperationContext>;
-  pause?: boolean;
 } & GraphQLRequestParams<TData, TVariables>;
+
+type ObservableQueryReturn<TData = any> = {
+  result: () => ObservableQueryState<TData>;
+  reexecute: (
+    context?: Partial<OperationContext>,
+  ) => Promise<ObservableQueryState<TData>>;
+  dispose: () => void;
+};
 
 function observableQuery<
   TData = any,
   TVariables extends AnyVariables = AnyVariables,
->(queryFn: () => Args<TData, TVariables>) {
-  let state = initialState as State<TData>;
+>(
+  argsGetter: () => ObservableQueryArgs<TData, TVariables> | undefined,
+): ObservableQueryReturn<TData> {
+  let state = initialState;
   let subscription: Subscription | undefined = undefined;
   let resolvers: Resolver<TData>[] = [];
 
@@ -53,7 +48,7 @@ function observableQuery<
   function fetch(
     source: OperationResultSource<OperationResult<TData, TVariables>>,
   ) {
-    state.fetching = true;
+    state = { ...state, fetching: true };
     atom.reportChanged();
     subscription?.unsubscribe();
     subscription = pipe(
@@ -77,10 +72,11 @@ function observableQuery<
 
   function start() {
     autorun(() => {
-      const { client, query, variables, pause, context } = queryFn();
-      if (pause) {
+      const args = argsGetter();
+      if (!args) {
         return;
       }
+      const { client, query, variables, context } = args;
       const source = client.query(query, variables as TVariables, context);
       fetch(source);
     });
@@ -102,7 +98,11 @@ function observableQuery<
       const promise = new Promise<State<TData>>((_resolve) =>
         resolvers.push(_resolve),
       );
-      const { client, query, variables } = queryFn();
+      const args = argsGetter();
+      if (!args) {
+        return Promise.resolve(state);
+      }
+      const { client, query, variables } = args;
       const source = client.query(query, variables as TVariables, context);
       fetch(source);
       return promise;
@@ -114,4 +114,8 @@ function observableQuery<
 }
 
 export { observableQuery };
-export type { State as ObservableQueryState };
+export type {
+  ObservableQueryArgs,
+  ObservableQueryReturn,
+  ObservableQueryState,
+};
