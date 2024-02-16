@@ -1,23 +1,15 @@
 import {
   AnyVariables,
-  Client,
   DocumentInput,
   OperationContext,
   OperationResult,
 } from "@urql/core";
 import { createAtom } from "mobx";
 import { filter, onPush, pipe, take, toPromise } from "wonka";
+import { getClient } from ".";
 import { State, initialState } from "./state";
 
 type ObservableMutationState<TData> = State<TData>;
-
-type ObservalbeMutationArgs<
-  TData = any,
-  TVariables extends AnyVariables = AnyVariables,
-> = {
-  mutation: DocumentInput<TData, TVariables>;
-  client: Client;
-};
 
 type ObservableMutationReturn<
   TData = any,
@@ -33,13 +25,9 @@ type ObservableMutationReturn<
 function observableMutation<
   TData = any,
   TVariables extends AnyVariables = AnyVariables,
->({
-  client,
-  mutation,
-}: ObservalbeMutationArgs<TData, TVariables>): ObservableMutationReturn<
-  TData,
-  TVariables
-> {
+>(
+  mutation: DocumentInput<TData, TVariables>,
+): ObservableMutationReturn<TData, TVariables> {
   let state: State<TData> = initialState;
 
   const atom = createAtom("ObservableMutation");
@@ -52,9 +40,11 @@ function observableMutation<
     execute: (variables: TVariables, context?: Partial<OperationContext>) => {
       state = { ...state, fetching: true };
       atom.reportChanged();
+      const client = getClient();
       return pipe(
         client.mutation(mutation, variables, context),
         onPush((result) => {
+          console.log(result);
           state = {
             fetching: false,
             stale: result.stale,
@@ -74,8 +64,4 @@ function observableMutation<
 }
 
 export { observableMutation };
-export type {
-  ObservableMutationReturn,
-  ObservableMutationState,
-  ObservalbeMutationArgs,
-};
+export type { ObservableMutationReturn, ObservableMutationState };

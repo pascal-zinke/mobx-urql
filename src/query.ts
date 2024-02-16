@@ -1,6 +1,5 @@
 import {
   AnyVariables,
-  Client,
   GraphQLRequestParams,
   OperationContext,
   OperationResult,
@@ -8,6 +7,7 @@ import {
 } from "@urql/core";
 import { autorun, createAtom } from "mobx";
 import { Subscription, pipe, subscribe } from "wonka";
+import { getClient } from ".";
 import { State, initialState } from "./state";
 
 type Resolver<T> = (result: State<T>) => void;
@@ -18,7 +18,6 @@ type ObservableQueryArgs<
   TData = any,
   TVariables extends AnyVariables = AnyVariables,
 > = {
-  client: Client;
   context?: Partial<OperationContext>;
 } & GraphQLRequestParams<TData, TVariables>;
 
@@ -71,12 +70,13 @@ function observableQuery<
   }
 
   function start() {
+    const client = getClient();
     autorun(() => {
       const args = argsGetter();
       if (!args) {
         return;
       }
-      const { client, query, variables, context } = args;
+      const { query, variables, context } = args;
       const source = client.query(query, variables as TVariables, context);
       fetch(source);
     });
@@ -102,8 +102,12 @@ function observableQuery<
       if (!args) {
         return Promise.resolve(state);
       }
-      const { client, query, variables } = args;
-      const source = client.query(query, variables as TVariables, context);
+      const client = getClient();
+      const source = client.query(
+        args.query,
+        args.variables as TVariables,
+        context ?? args.context,
+      );
       fetch(source);
       return promise;
     },
