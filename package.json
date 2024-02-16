@@ -9,7 +9,7 @@
     "mobx"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/pascal-zinke/urql-mobx",
+  "homepage": "https://github.com/pascal-zinke/mobx-urql",
   "repository": {
     "type": "git",
     "url": "https://github.com/pascal-zinke/mobx-urql"
