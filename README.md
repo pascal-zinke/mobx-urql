@@ -28,23 +28,38 @@ pnpm add mobx-urql
 
 The library provides an `observableQuery` function for querying data and an `observableMutation` function for sending mutations. In the following example, we'll use an imaginary GraphQL API for querying and updating todos. The documentation assumes that you already have a basic understanding of both `urql` and `mobx`. Let's get into it.
 
+### Providing the Client
+
+First we'll need to setup our urql Client according to urql's [docs](https://commerce.nearform.com/open-source/urql/docs/basics/core/#using-the-urql-client). We can provide the client via the `setClient` function. This sets a global observable which `observableQuery` and `observableMutation` can access. That means `setClient` needs to be called before any queries or mutations are created.
+
+```js
+import { Client, cacheExchange, fetchExchange } from "@urql/core";
+import { setClient } from "mobx-urql";
+
+const client = new Client({
+  url: "/graphql",
+  exchanges: [cacheExchange, fetchExchange],
+});
+
+setClient(client);
+```
+
 ## Query
 
 ### Runnning a query
 
-First we'll want to fetch our list of todos. We'll assume that our urql client is already set up and we have created our `TodosQuery`.
+For this example we'll want to fetch our list of todos. We'll assume that our urql client is already set up and we have created our `TodosQuery`.
 
 ```js
 import { observableQuery } from "mobx-urql";
 import { autorun } from "mobx";
 
 const query = observableQuery(() => ({
-  client, // your urql client
-  query: TodosQuery, // your query
+  query: TodosQuery,
 }));
 
 autorun(() => {
-  console.log(query.result().data);
+  console.log(query.result());
 });
 ```
 
@@ -63,15 +78,14 @@ import { autorun, observable } from "mobx";
 const search = observable.box("");
 
 const query = observableQuery(() => ({
-  client, // your urql client
-  query: TodosQuery, // your query
+  query: TodosQuery,
   variables: {
     search: search.get(),
   },
 }));
 
 autorun(() => {
-  console.log(query.result().data);
+  console.log(query.result());
 });
 
 search.set("foo");
@@ -93,14 +107,13 @@ const query = observableQuery(() => {
   const listId = list.get().id;
   if (listId == null) return;
   return {
-    client, // your urql client
-    query: TodosQuery, // your query
+    query: TodosQuery,
     variables: { listId },
   };
 });
 
 autorun(() => {
-  console.log(query.result().data);
+  console.log(query.result());
 });
 
 list.set({ id: 1 });
@@ -115,8 +128,7 @@ import { observableQuery } from "mobx-urql";
 import { autorun } from "mobx";
 
 const query = observableQuery(() => ({
-  client, // your urql client
-  query: TodosQuery, // your query
+  query: TodosQuery,
   context: {
     requestPolicy: "network-only",
   },
@@ -132,12 +144,11 @@ import { observableQuery } from "mobx-urql";
 import { autorun } from "mobx";
 
 const query = observableQuery(() => ({
-  client, // your urql client
-  query: TodosQuery, // your query
+  query: TodosQuery,
 }));
 
 autorun(() => {
-  console.log(query.result().data);
+  console.log(query.result());
 });
 
 const result = await query.reexecute({ requestPolicy: "network-only" });
@@ -156,10 +167,7 @@ Let's say we want to complete a todo from our list. We created a `CompleteTodoMu
 ```js
 import { observableMutation } from "mobx-urql";
 
-const mutation = observableMutation({
-  client, // your urql client
-  mutation: CompleteTodoMutation, // your mutation
-});
+const mutation = observableMutation(CompleteTodoMutation);
 
 mutation.execute({ id: 1 });
 ```
@@ -174,13 +182,10 @@ We have two ways of accessing our mutations result. We can either – just like 
 import { observableMutation } from "mobx-urql";
 import { autorun } from "mobx";
 
-const mutation = observableMutation({
-  client, // your urql client
-  mutation: CompleteTodoMutation, // your mutation
-});
+const mutation = observableMutation(CompleteTodoMutation);
 
 autorun(() => {
-  console.log(mutation.result().data);
+  console.log(mutation.result());
 });
 
 const result = await mutation.execute({ id: 1 });
