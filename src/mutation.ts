@@ -44,7 +44,6 @@ function observableMutation<
       return pipe(
         client.mutation(mutation, variables, context),
         onPush((result) => {
-          console.log(result);
           state = {
             fetching: false,
             stale: result.stale,
