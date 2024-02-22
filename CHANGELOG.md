@@ -1,5 +1,11 @@
 # mobx-urql
 
+## 0.0.4
+
+### Patch Changes
+
+- fd5eefa: Remove debug log
+
 ## 0.0.3
 
 ### Patch Changes

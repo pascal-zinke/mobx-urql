@@ -1,5 +1,5 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.4",
   "name": "mobx-urql",
   "description": "MobX bindings for the Urql GraphQL client",
   "author": "Pascal Zinke",
